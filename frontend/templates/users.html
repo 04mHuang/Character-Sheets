@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+    <h1>Users</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>Groups</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Group Name</th>
+                <th>User ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for group in groups %}
+                <tr>
+                    <td>{{ group.group_name }}</td>
+                    <td>{{ group.user_id }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>People</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>User ID</th>
+                <th>Birthday</th>
+                <th>Allergies</th>
+                <th>Interests</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for person in people %}
+                <tr>
+                    <td>{{ person.name }}</td>
+                    <td>{{ person.user_id }}</td>
+                    <td>{{ person.birthday }}</td>
+                    <td>{{ person.allergies }}</td>
+                    <td>{{ person.interests }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h1>Group Members</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Group ID</th>
+                <th>Person ID</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in group_members %}
+                <tr>
+                    <td>{{ member.group_id }}</td>
+                    <td>{{ member.person_id }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

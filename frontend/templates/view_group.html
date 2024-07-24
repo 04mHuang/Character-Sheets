@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ group_name }} - Group Members</title>
+</head>
+<body>
+    <h1>Members of {{ group_name }}</h1>
+    <ul>
+        {% for person in people %}
+            <li>{{ person.name }} - Birthday: {{ person.birthday }} - Allergies: {{ person.allergies }} - Interests: {{ person.interests }}</li>
+        {% endfor %}
+    </ul>
+    <a href="{{ url_for('index') }}">Back to Home</a>
+</body>
+</html>

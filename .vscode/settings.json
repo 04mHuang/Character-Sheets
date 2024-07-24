@@ -9,9 +9,12 @@
             "server": "localhost",
             "port": 3306,
             "driver": "MariaDB",
-            "name": "MariaDB Local",
+            "name": "MariaDB",
+            "username": "root",
             "database": "main_database",
-            "username": "jorgepinzon"
+            "askForPassword": true
         }
-    ]
+    ],
+    "python.pythonPath": "venv/bin/python"
 }
+
