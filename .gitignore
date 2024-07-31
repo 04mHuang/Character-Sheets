@@ -2,3 +2,4 @@ _config.yml
 .venv
 .env
 credentials.json
+token.json
