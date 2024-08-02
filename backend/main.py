@@ -44,9 +44,6 @@ class GroupMember(db.Model):
     group_id = db.Column(db.Integer, db.ForeignKey('Groups.group_id'), primary_key=True)
     person_id = db.Column(db.Integer, db.ForeignKey('People.person_id'), primary_key=True)
 
-with app.app_context():
-    db.create_all()
-
 @app.route('/')
 @app.route('/index')
 def index():
@@ -65,6 +62,7 @@ def show_users():
 
 if __name__ == '__main__':
     logging.info("Creating database tables...")
-    db.create_all()  # Create tables if they don't exist
-    logging.info("Starting the server...")
-    app.run(debug=True, host='0.0.0.0', port=3306)
+    with app.app_context():
+        db.create_all()
+        logging.info("Starting the server...")
+        app.run(debug=True, host='0.0.0.0', port=3000)
