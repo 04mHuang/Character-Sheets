@@ -21,24 +21,18 @@
   </nav>
   <div class="container">
     {% if request.endpoint == 'base' and session.username %}
-      <div class="user-groups">
-        <h2>Welcome, {{ session.username }}!</h2>
-        <h2>Your Groups</h2>
-        <ul>
+      <div class="group-list-container">
+        <h2>Groups List</h2>
+        <div class="groups-grid">
           {% for group in groups %}
-            <li>
+            <div class="group-card">
               <a href="{{ url_for('view_group', group_id=group.group_id) }}">{{ group.group_name }}</a>
-              <form action="{{ url_for('delete_group', group_id=group.group_id) }}" method="post" style="display:inline;">
-                <button type="submit">Delete</button>
-              </form>
-            </li>
+            </div>
           {% endfor %}
-        </ul>
-        <h2>Create a New Group</h2>
-        <form action="{{ url_for('create_group') }}" method="post">
-          <input type="text" name="group_name" placeholder="Group Name" required>
-          <button type="submit">Create</button>
-        </form>
+          <div class="group-card add-group">
+            <a href="{{ url_for('create_group') }}">+</a>
+          </div>
+        </div>
       </div>
     {% endif %}
     {% block content %}{% endblock %}
