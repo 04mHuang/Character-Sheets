@@ -1,18 +1,142 @@
-* {
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
   margin: 0;
+  padding: 0;
 }
-#nav-bar {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  width: 100vw;
-  height: 6vh;
-  list-style-type: none;
+
+nav {
+  background-color: #d3d3d3;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  background-color: rgb(174, 174, 174);
 }
-#home {
-  width: 50px;
-  height: 100%;
-  font-size: 25px;
+
+#nav-bar {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+#nav-bar li {
+  margin-right: 20px;
+}
+
+#nav-bar #home {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#nav-bar #search-bar {
+  flex-grow: 1;
+  padding: 5px;
+}
+
+#nav-bar a {
+  text-decoration: none;
+  color: black;
+  font-weight: bold;
+}
+
+#nav-bar a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 50px); /* Adjust height to fill the remaining space below the nav */
+  flex-direction: column;
+}
+
+.user-groups {
+  background-color: #d3d3d3;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 80%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.user-groups h2 {
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.user-groups ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.user-groups li {
+  margin-bottom: 10px;
+}
+
+.user-groups form {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.user-groups input, .user-groups button {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.user-groups button {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
   cursor: pointer;
+}
+
+.user-groups button:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+.login-container, .signup-container, .group-container {
+  background-color: #d3d3d3;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  width: 300px;
+}
+
+.login-container h2, .signup-container h2, .group-container h2 {
+  margin-bottom: 20px;
+  font-size: 1.5em;
+}
+
+.login-container form, .signup-container form, .group-container form {
+  margin-bottom: 20px;
+}
+
+.login-container input, .signup-container input, .group-container input {
+  width: calc(100% - 22px);
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.login-container button, .signup-container button, .group-container button {
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #000;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.login-container button:hover, .signup-container button:hover, .group-container button:hover {
+  background-color: #000;
+  color: #fff;
 }

@@ -4,39 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
-  <title>{% block title %}Character Sheets{% endblock %} </title>
+  <title>{% block title %}Character Sheets{% endblock %}</title>
 </head>
 <body>
   <nav>
     <ul id="nav-bar">
-      <li><a href="{{ url_for('show_users') }}" id="home">CS</a></li>
+      <li><a href="{{ url_for('base') }}" id="home">CS</a></li>
       <li><input id="search-bar" type="text" placeholder="Search..." /></li>
-      <li><a href="{{ url_for('signup') }}" id="signup">Sign up</a></li>
-      <li><a href="{{ url_for('login') }}" id="login">Login</a></li>
-      <li><a href="{{ url_for('logout') }}" id="logout">Logout</a></li>
+      {% if not session.username %}
+        <li><a href="{{ url_for('signup') }}" id="signup">Sign up</a></li>
+        <li><a href="{{ url_for('login') }}" id="login">Login</a></li>
+      {% else %}
+        <li><a href="{{ url_for('logout') }}" id="logout">Logout</a></li>
+      {% endif %}
     </ul>
   </nav>
   <div class="container">
-    {% if session.username %}
-      <h2>Welcome, {{ session.username }}!</h2>
-      <h2>Your Groups</h2>
-      <ul>
-        {% for group in groups %}
-          <li>
-            <a href="{{ url_for('view_group', group_id=group.group_id) }}">{{ group.group_name }}</a>
-            <form action="{{ url_for('delete_group', group_id=group.group_id) }}" method="post" style="display:inline;">
-              <button type="submit">Delete</button>
-            </form>
-          </li>
-        {% endfor %}
-      </ul>
-      <h2>Create a New Group</h2>
-      <form action="{{ url_for('create_group') }}" method="post">
-        <input type="text" name="group_name" placeholder="Group Name" required>
-        <button type="submit">Create</button>
-      </form>
-    {% else %}
-      <h2>Welcome to Character Sheets!</h2>
+    {% if request.endpoint == 'base' and session.username %}
+      <div class="user-groups">
+        <h2>Welcome, {{ session.username }}!</h2>
+        <h2>Your Groups</h2>
+        <ul>
+          {% for group in groups %}
+            <li>
+              <a href="{{ url_for('view_group', group_id=group.group_id) }}">{{ group.group_name }}</a>
+              <form action="{{ url_for('delete_group', group_id=group.group_id) }}" method="post" style="display:inline;">
+                <button type="submit">Delete</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+        <h2>Create a New Group</h2>
+        <form action="{{ url_for('create_group') }}" method="post">
+          <input type="text" name="group_name" placeholder="Group Name" required>
+          <button type="submit">Create</button>
+        </form>
+      </div>
     {% endif %}
     {% block content %}{% endblock %}
   </div>

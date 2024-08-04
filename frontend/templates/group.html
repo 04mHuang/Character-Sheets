@@ -1,18 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
-  <title>{% block title %}Group Details{% endblock %} </title>
-</head>
-<body>
-  <nav>
-    <ul id="nav-bar">
-      <li><a href="{{ url_for('base') }}" id="home">Back to Groups</a></li>
-    </ul>
-  </nav>
-  <div class="container">
+{% extends "base.html" %}
+{% block title %}Group Details{% endblock %}
+{% block content %}
+<div class="group-container">
     <h2>Group: {{ group.group_name }}</h2>
     <h3>Members</h3>
     <ul>
@@ -27,9 +16,8 @@
     </ul>
     <h3>Add Member</h3>
     <form action="{{ url_for('add_member', group_id=group.group_id) }}" method="post">
-      <input type="text" name="username" placeholder="Username" required>
-      <button type="submit">Add</button>
+        <input type="text" name="username" placeholder="Username" required>
+        <button type="submit">Add</button>
     </form>
-  </div>
-</body>
-</html>
+</div>
+{% endblock %}
