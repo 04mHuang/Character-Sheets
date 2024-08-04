@@ -3,6 +3,7 @@ print("Starting Flask application...")
 from flask import Flask, render_template, request, redirect, url_for, session
 from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
+from flask_migrate import Migrate
 import logging
 
 #logging to track when things are happening in the program and make debugging easier
@@ -18,6 +19,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 class User(db.Model):
     __tablename__ = 'Users'
@@ -44,14 +46,83 @@ class Person(db.Model):
 
 class GroupMember(db.Model):
     __tablename__ = 'GroupMembers'
-    group_id = db.Column(db.Integer, db.ForeignKey('Groups.group_id'), primary_key=True)
-    person_id = db.Column(db.Integer, db.ForeignKey('People.person_id'), primary_key=True)
+    groupmember_id = db.Column(db.Integer, primary_key=True)
+    group_id = db.Column(db.Integer, db.ForeignKey('Groups.group_id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
 
 @app.route('/')
 @app.route('/base')
 def base():
-    logging.info("Rendering base page")
-    return render_template('base.html')
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    groups = Group.query.filter_by(user_id=user_id).all()
+    return render_template('base.html', groups=groups)
+
+@app.route('/create_group', methods=['POST'])
+def create_group():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    user_id = session['user_id']
+    group_name = request.form['group_name']
+    
+    new_group = Group(user_id=user_id, group_name=group_name)
+    db.session.add(new_group)
+    db.session.commit()
+    
+    return redirect(url_for('base'))
+
+@app.route('/delete_group/<int:group_id>', methods=['POST'])
+def delete_group(group_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    group = Group.query.get(group_id)
+    if group and group.user_id == session['user_id']:
+        db.session.delete(group)
+        db.session.commit()
+    
+    return redirect(url_for('base'))
+
+@app.route('/group/<int:group_id>')
+def view_group(group_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    group = Group.query.get(group_id)
+    if group and group.user_id == session['user_id']:
+        members = db.session.query(User).join(GroupMember).filter(GroupMember.group_id == group_id).all()
+        return render_template('group.html', group=group, members=members)
+    else:
+        return redirect(url_for('base'))
+
+@app.route('/group/<int:group_id>/add_member', methods=['POST'])
+def add_member(group_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    username = request.form['username']
+    user = User.query.filter_by(username=username).first()
+    if user:
+        new_member = GroupMember(group_id=group_id, user_id=user.user_id)
+        db.session.add(new_member)
+        db.session.commit()
+    
+    return redirect(url_for('view_group', group_id=group_id))
+
+@app.route('/group/<int:group_id>/remove_member/<int:user_id>', methods=['POST'])
+def remove_member(group_id, user_id):
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    
+    member = GroupMember.query.filter_by(group_id=group_id, user_id=user_id).first()
+    if member:
+        db.session.delete(member)
+        db.session.commit()
+    
+    return redirect(url_for('view_group', group_id=group_id))
 
 # use /users to see the tables, just to make sure the sql works with the flask
 @app.route('/users')
