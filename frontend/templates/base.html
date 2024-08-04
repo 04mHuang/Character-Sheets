@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet" />
+  <title>{% block title %}Character Sheets{% endblock %} </title>
+</head>
+<body>
+  <nav>
+    <ul id="nav-bar">
+      <!-- TODO show_users should be replaced later -->
+      <li><a href="{{ url_for('show_users') }}" id="home">CS</a></li>
+      <li><input id="search-bar" type="text" placeholder="Search..." /></li>
+      <li><a href="{{ url_for('signup') }}" id="signup">Sign up</a></li>
+      <li><a href="{{ url_for('login') }}" id="login">Login</a></li>
+      <li><a href="{{ url_for('logout') }}" id="logout">Logout</a></li>
+    </ul>
+  </nav>
+  <div class="container">
+    {% if session.username %}
+      <h2>Welcome, {{ session.username }}!</h2>
+    {% else %}
+      <h2>Welcome to Character Sheets!</h2>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

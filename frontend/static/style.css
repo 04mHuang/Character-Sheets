@@ -1,4 +1,18 @@
-/* testing css */
-h1 {
-  color:blueviolet;
+* {
+  margin: 0;
+}
+#nav-bar {
+  display: grid;
+  grid-template-columns: auto auto auto;
+  width: 100vw;
+  height: 6vh;
+  list-style-type: none;
+  align-items: center;
+  background-color: rgb(174, 174, 174);
+}
+#home {
+  width: 50px;
+  height: 100%;
+  font-size: 25px;
+  cursor: pointer;
 }
