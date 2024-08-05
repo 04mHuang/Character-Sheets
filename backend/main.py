@@ -170,7 +170,7 @@ def login():
 
     request_uri = client.prepare_request_uri(
         authorization_endpoint,
-        redirect_uri=request.base_url + "/callback",
+        redirect_uri = "http://localhost:3000",
         scope=["openid", "email", "profile"],
     )
     return redirect(request_uri)
