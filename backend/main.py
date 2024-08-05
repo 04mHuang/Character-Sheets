@@ -8,7 +8,8 @@ import requests
 import json
 import logging
 from dotenv import load_dotenv
-from google_cal import get_credentials
+from google_auth_oauthlib.flow import Flow
+from googleapiclient.discovery import build
 
 # Load environment variables from .env file
 load_dotenv()
@@ -60,6 +61,12 @@ class GroupMember(db.Model):
     groupmember_id = db.Column(db.Integer, primary_key=True)
     group_id = db.Column(db.Integer, db.ForeignKey('Groups.group_id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+
+# Google Calendar API setup
+SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+
+def get_google_calendar_service(credentials):
+    return build('calendar', 'v3', credentials=credentials)
 
 @app.route('/')
 @app.route('/base')
@@ -160,52 +167,60 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
     
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if 'username' in session:
         return redirect(url_for('base'))
     
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
-    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email, password=password).first()
+        if user:
+            session['user_id'] = user.user_id
+            session['username'] = user.username
+            return redirect(url_for('base'))
+        else:
+            return 'Invalid credentials'
 
-    request_uri = client.prepare_request_uri(
-        authorization_endpoint,
-        redirect_uri = "http://localhost:3000",
-        scope=["openid", "email", "profile"],
+    return render_template('login.html')
+
+@app.route('/google_login', methods=['GET'])
+def google_login():
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes=SCOPES,
+        redirect_uri="http://localhost:3000"
     )
-    return redirect(request_uri)
+    authorization_url, state = flow.authorization_url(
+        access_type='offline',
+        include_granted_scopes='true'
+    )
+    session['state'] = state
+    return redirect(authorization_url)
 
 @app.route("/login/callback")
 def callback():
-    code = request.args.get("code")
-
-    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
-    token_endpoint = google_provider_cfg["token_endpoint"]
-
-    token_url, headers, body = client.prepare_token_request(
-        token_endpoint,
-        authorization_response=request.url,
-        redirect_url=request.base_url,
-        code=code
+    state = session['state']
+    flow = Flow.from_client_secrets_file(
+        'credentials.json',
+        scopes=SCOPES,
+        state=state,
+        redirect_uri=url_for('callback', _external=True)
     )
-    token_response = requests.post(
-        token_url,
-        headers=headers,
-        data=body,
-        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
-    )
+    flow.fetch_token(authorization_response=request.url)
+    credentials = flow.credentials
 
-    client.parse_request_body_response(json.dumps(token_response.json()))
+    session['credentials'] = credentials_to_dict(credentials)
 
-    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
-    uri, headers, body = client.add_token(userinfo_endpoint)
-    userinfo_response = requests.get(uri, headers=headers, data=body)
+    userinfo_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'alt': 'json', 'access_token': credentials.token}
+    userinfo_response = requests.get(userinfo_endpoint, params=params)
+    userinfo = userinfo_response.json()
 
-    if userinfo_response.json().get("email_verified"):
-        unique_id = userinfo_response.json()["sub"]
-        users_email = userinfo_response.json()["email"]
-        picture = userinfo_response.json()["picture"]
-        users_name = userinfo_response.json()["given_name"]
+    if userinfo.get("email_verified"):
+        users_email = userinfo["email"]
+        users_name = userinfo["name"]
     else:
         return "User email not available or not verified by Google.", 400
 
@@ -226,10 +241,21 @@ def callback():
 def logout():
     session.pop('user_id', None)
     session.pop('username', None)
+    session.pop('credentials', None)
     return redirect(url_for('base'))
 
+@app.route('/calendar')
+def calendar():
+    if 'credentials' not in session:
+        return redirect('login')
+    credentials = google.oauth2.credentials.Credentials(
+        **session['credentials']
+    )
+    service = get_google_calendar_service(credentials)
+    events_result = service.events().list(calendarId='primary', maxResults=10, singleEvents=True, orderBy='startTime').execute()
+    events = events_result.get('items', [])
+    return render_template('calendar.html', events=events)
 
-# TODO: remove below route used for testing
 @app.route('/check_session')
 def check_session():
     if 'user_id' in session:
@@ -238,6 +264,14 @@ def check_session():
         return f"Session is active. User ID: {user_id}, Username: {username}"
     else:
         return 'User is not logged in'
+
+def credentials_to_dict(credentials):
+    return {'token': credentials.token,
+            'refresh_token': credentials.refresh_token,
+            'token_uri': credentials.token_uri,
+            'client_id': credentials.client_id,
+            'client_secret': credentials.client_secret,
+            'scopes': credentials.scopes}
 
 if __name__ == '__main__':
     logging.info("Creating database tables...")
