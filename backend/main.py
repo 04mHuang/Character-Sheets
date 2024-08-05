@@ -1,25 +1,36 @@
-print("Starting Flask application...")
-
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, redirect, url_for, session, request
 from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
 from flask_migrate import Migrate
+from oauthlib.oauth2 import WebApplicationClient
+import os
+import requests
+import json
 import logging
+from dotenv import load_dotenv
+from google_cal import get_credentials
 
-#logging to track when things are happening in the program and make debugging easier
+# Load environment variables from .env file
+load_dotenv()
+
 logging.basicConfig(level=logging.INFO)
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
-# TODO: Change this to a secure secret key
-app.secret_key = 'your_secret_key'
+app.secret_key = os.getenv('SECRET_KEY')
 
 # Configure the database connection
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:password@localhost/main_database'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+
+client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
 class User(db.Model):
     __tablename__ = 'Users'
@@ -149,27 +160,74 @@ def signup():
         return redirect(url_for('login'))
     return render_template('signup.html')
     
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login')
 def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email, password=password).first()
-        if user:
-            session['user_id'] = user.user_id
-            # TODO: verify if username in session is needed
-            session['username'] = user.username
-            return redirect(url_for('base'))
-        else:
-            # TODO: redirect to proper template
-            return 'Invalid username or password'
-    return render_template('login.html')
+    if 'username' in session:
+        return redirect(url_for('base'))
+    
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+    authorization_endpoint = google_provider_cfg["authorization_endpoint"]
+
+    request_uri = client.prepare_request_uri(
+        authorization_endpoint,
+        redirect_uri=request.base_url + "/callback",
+        scope=["openid", "email", "profile"],
+    )
+    return redirect(request_uri)
+
+@app.route("/login/callback")
+def callback():
+    code = request.args.get("code")
+
+    google_provider_cfg = requests.get(GOOGLE_DISCOVERY_URL).json()
+    token_endpoint = google_provider_cfg["token_endpoint"]
+
+    token_url, headers, body = client.prepare_token_request(
+        token_endpoint,
+        authorization_response=request.url,
+        redirect_url=request.base_url,
+        code=code
+    )
+    token_response = requests.post(
+        token_url,
+        headers=headers,
+        data=body,
+        auth=(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    )
+
+    client.parse_request_body_response(json.dumps(token_response.json()))
+
+    userinfo_endpoint = google_provider_cfg["userinfo_endpoint"]
+    uri, headers, body = client.add_token(userinfo_endpoint)
+    userinfo_response = requests.get(uri, headers=headers, data=body)
+
+    if userinfo_response.json().get("email_verified"):
+        unique_id = userinfo_response.json()["sub"]
+        users_email = userinfo_response.json()["email"]
+        picture = userinfo_response.json()["picture"]
+        users_name = userinfo_response.json()["given_name"]
+    else:
+        return "User email not available or not verified by Google.", 400
+
+    user = User.query.filter_by(email=users_email).first()
+    if not user:
+        user = User(
+            username=users_name, email=users_email, password="" # You may want to store a dummy password or hash
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    session['user_id'] = user.user_id
+    session['username'] = user.username
+
+    return redirect(url_for("base"))
 
 @app.route('/logout')
 def logout():
     session.pop('user_id', None)
     session.pop('username', None)
     return redirect(url_for('base'))
+
 
 # TODO: remove below route used for testing
 @app.route('/check_session')
