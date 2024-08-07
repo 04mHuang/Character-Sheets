@@ -27,10 +27,16 @@
           {% for group in groups %}
             <div class="group-card">
               <a href="{{ url_for('view_group', group_id=group.group_id) }}">{{ group.group_name }}</a>
+              <form action="{{ url_for('delete_group', group_id=group.group_id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="delete-button">x</button>
+              </form>
             </div>
           {% endfor %}
           <div class="group-card add-group">
-            <a href="{{ url_for('create_group') }}">+</a>
+            <form action="{{ url_for('create_group') }}" method="POST">
+              <input type="text" name="group_name" placeholder="New Group Name" required>
+              <button type="submit">+</button>
+            </form>
           </div>
         </div>
       </div>

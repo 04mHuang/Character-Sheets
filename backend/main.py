@@ -212,7 +212,7 @@ def google_login():
     flow = Flow.from_client_secrets_file(
         'credentials.json',
         scopes=SCOPES,
-        redirect_uri="http://localhost:3000"
+        redirect_uri="http://localhost:3000/login/callback"
     )
     authorization_url, state = flow.authorization_url(
         access_type='offline',

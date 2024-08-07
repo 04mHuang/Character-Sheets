@@ -68,6 +68,7 @@ nav {
 }
 
 .group-card {
+  position: relative;
   background-color: #d3d3d3;
   padding: 20px;
   border-radius: 8px;
@@ -92,6 +93,26 @@ nav {
 .group-card.add-group a {
   font-size: 2em;
 }
+
+.delete-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: red;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: darkred;
+}
+
 .google-login {
   display: block;
   margin-top: 20px;
