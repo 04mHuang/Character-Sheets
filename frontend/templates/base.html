@@ -45,11 +45,15 @@
   </div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#101E4D'];
+      const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', '#b8f09e'];
+      const backgroundColor = '#FFE4E1';
       const groupCards = document.querySelectorAll('.group-card');
       
       groupCards.forEach(card => {
-        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+        let randomColor;
+        do {
+          randomColor = colors[Math.floor(Math.random() * colors.length)];
+        } while (randomColor === backgroundColor);
         card.style.backgroundColor = randomColor;
       });
     });
