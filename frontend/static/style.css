@@ -1,12 +1,12 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f5f5f5;
+  background-color: #FFE4E1;
   margin: 0;
   padding: 0;
 }
 
 nav {
-  background-color: #d3d3d3;
+  background-color: #ffbcbc;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -131,14 +131,14 @@ button:hover {
 
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns */
+  gap: 10px; /* Reduced gap */
+  justify-content: center; /* Center the grid items */
   margin-top: 20px;
 }
 
 .group-card {
   position: relative;
-  background-color: #d3d3d3;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -146,20 +146,12 @@ button:hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px;
-}
-
-.group-card a {
-  text-decoration: none;
-  color: black;
-  font-weight: bold;
+  width: 150px; /* Fixed width for square shape */
+  height: 150px; /* Fixed height for square shape */
+  color: white; /* Text color to be visible on dark backgrounds */
 }
 
 .group-card.add-group {
-  font-size: 2em;
-}
-
-.group-card.add-group a {
   font-size: 2em;
 }
 
