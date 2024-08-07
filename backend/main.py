@@ -41,6 +41,7 @@ class User(db.Model):
     password = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+# When querying in MySQL server, use backticks because Groups is a reserved keyword
 class Group(db.Model):
     __tablename__ = 'Groups'
     group_id = db.Column(db.Integer, primary_key=True)
@@ -55,12 +56,14 @@ class Person(db.Model):
     birthday = db.Column(db.Date)
     allergies = db.Column(db.Text)
     interests = db.Column(db.Text)
+    # Many-to-many relationship between People and Group
+    groups = db.relationship('Group', secondary='GroupMembers', backref=db.backref('people', lazy='dynamic'))
 
-class GroupMember(db.Model):
-    __tablename__ = 'GroupMembers'
-    groupmember_id = db.Column(db.Integer, primary_key=True)
-    group_id = db.Column(db.Integer, db.ForeignKey('Groups.group_id'), nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
+# Join table
+group_members = db.Table('GroupMembers',
+    db.Column('person_id', db.Integer, db.ForeignKey('People.person_id'), primary_key=True),
+    db.Column('group_id', db.Integer, db.ForeignKey('Groups.group_id'), primary_key=True)
+)
 
 # Google Calendar API setup
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
@@ -111,35 +114,47 @@ def view_group(group_id):
     
     group = Group.query.get(group_id)
     if group and group.user_id == session['user_id']:
-        members = db.session.query(User).join(GroupMember).filter(GroupMember.group_id == group_id).all()
-        return render_template('group.html', group=group, members=members)
+        group_members_data = (
+            db.session.query(Person)
+            .join(group_members, Person.person_id == group_members.c.person_id)
+            .filter(group_members.c.group_id == group_id)
+            .all()
+        )
+        return render_template('group.html', group=group, members=group_members_data)
     else:
         return redirect(url_for('base'))
 
 @app.route('/group/<int:group_id>/add_member', methods=['POST'])
 def add_member(group_id):
     if 'username' not in session:
-        return redirect(url_for('login'))
-    
-    username = request.form['username']
-    user = User.query.filter_by(username=username).first()
-    if user:
-        new_member = GroupMember(group_id=group_id, user_id=user.user_id)
-        db.session.add(new_member)
+        return redirect(url_for('login'))    
+    if request.method == 'POST':
+        name = request.form['name']
+        existing_person = Person.query.filter_by(name=name).first()
+        group = Group.query.get(group_id)
+        if existing_person:
+            group.people.append(existing_person)
+            return redirect(url_for('view_group', group_id=group_id))
+        
+        # TODO: needs to redirect to character sheet form
+        new_person = Person(user_id=session['user_id'], name=name)
+        db.session.add(new_person)
         db.session.commit()
-    
+        if group and group.user_id == session['user_id']:
+            # Add the new person to the group
+            group.people.append(new_person)
+            db.session.commit()
+        
     return redirect(url_for('view_group', group_id=group_id))
-
+    
 @app.route('/group/<int:group_id>/remove_member/<int:user_id>', methods=['POST'])
 def remove_member(group_id, user_id):
     if 'username' not in session:
         return redirect(url_for('login'))
-    
-    member = GroupMember.query.filter_by(group_id=group_id, user_id=user_id).first()
-    if member:
-        db.session.delete(member)
-        db.session.commit()
-    
+    group = Group.query.get(group_id)
+    person = Person.query.get(user_id)
+    group.people.remove(person)
+    db.session.commit()
     return redirect(url_for('view_group', group_id=group_id))
 
 # use /users to see the tables, just to make sure the sql works with the flask
@@ -149,8 +164,15 @@ def show_users():
     users = User.query.all()
     groups = Group.query.all()
     people = Person.query.all()
-    group_members = GroupMember.query.all()
-    return render_template('users.html', users=users, groups=groups, people=people, group_members=group_members)
+    group_members_data = (
+        db.session.query(group_members)
+        .select_from(group_members)
+        .join(Person, group_members.c.person_id == Person.person_id)
+        .join(Group, group_members.c.group_id == Group.group_id)
+        .all()
+    )
+
+    return render_template('users.html', users=users, groups=groups, people=people, group_members=group_members_data)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
