@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Person Details{% endblock %}
+{% block content %}
+<div class="person-container">
+    <h2>{{ person.name }}</h2>
+    <div class="person-details">
+        <div class="person-info">
+            <p><strong>Birthday:</strong> {{ person.birthday if person.birthday else 'Not specified' }}</p>
+            <p><strong>Allergies:</strong> {{ person.allergies if person.allergies else 'Not specified' }}</p>
+            <p><strong>Interests:</strong> {{ person.interests if person.interests else 'Not specified' }}</p>
+        </div>
+    </div>
+    <button onclick="window.location.href='{{ url_for('edit_person', person_id=person.person_id) }}'">Edit Information</button>
+</div>
+{% endblock %}

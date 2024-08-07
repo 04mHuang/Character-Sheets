@@ -7,7 +7,7 @@
     <ul>
       {% for member in members %}
         <li>
-          {{ member.name }}
+          <a href="{{ url_for('view_person', person_id=member.person_id) }}">{{ member.name }}</a>
           <form action="{{ url_for('remove_member', group_id=group.group_id, user_id=member.user_id) }}" method="post" style="display:inline;">
             <button type="submit">Remove</button>
           </form>
