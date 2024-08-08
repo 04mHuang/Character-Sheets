@@ -328,10 +328,12 @@ def signup():
         password = request.form['password']
         existing_user = User.query.filter_by(email=email).first()
         if existing_user:
-            return 'Account with this email already exists'
+            flash('Account with this email already exists', 'danger')
+            return redirect(url_for('signup'))
         new_user = User(username=username, email=email, password=password)
         db.session.add(new_user)
         db.session.commit()
+        flash('Account created successfully', 'success')
         return redirect(url_for('login'))
     return render_template('signup.html')
     
@@ -349,7 +351,8 @@ def login():
             session['username'] = user.username
             return redirect(url_for('base'))
         else:
-            return 'Invalid credentials'
+            flash('Incorrect password', 'danger')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 

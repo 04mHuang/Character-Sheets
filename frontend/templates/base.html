@@ -10,7 +10,6 @@
   <nav>
     <ul id="nav-bar">
       <li><a href="{{ url_for('base') }}" id="home">CS</a></li>
-      <li><input id="search-bar" type="text" placeholder="Search..." /></li>
       {% if not session.username %}
         <li><a href="{{ url_for('signup') }}" id="signup">Sign up</a></li>
         <li><a href="{{ url_for('login') }}" id="login">Login</a></li>
