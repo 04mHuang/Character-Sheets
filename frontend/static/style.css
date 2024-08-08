@@ -55,55 +55,52 @@ nav {
   width: 100%;
 }
 
+.group-container, .person-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #ffcccc; /* Pastel pink slightly darker than the background */
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .person-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  width: 80%;
-  max-width: 800px;
-  margin: 20px auto;
+  height: auto;
+  position: relative;
 }
 
 .person-details {
   display: flex;
   width: 100%;
+  margin-bottom: 40px;
 }
 
-.person-photo {
+.person-info-left, .person-info-right {
   flex: 1;
-  text-align: center;
+  padding: 10px;
 }
 
-.person-photo img {
-  max-width: 150px;
-  border-radius: 50%;
+.person-info-left {
+  border-right: 1px solid #ccc;
+  padding-right: 20px;
+  flex: 0.4; /* Adjust flex value to make the left section smaller */
 }
 
-.person-info {
-  flex: 2;
+.person-info-right {
   padding-left: 20px;
+  flex: 0.6; /* Adjust flex value to make the right section larger */
 }
 
-.person-info p {
-  margin: 5px 0;
-}
-
-.person-notes {
-  width: 100%;
-  margin-top: 20px;
-}
-
-.person-notes h3 {
-  margin: 10px 0 5px;
+h2, h3 {
+  margin-top: 0;
 }
 
 button {
   padding: 10px 20px;
-  margin-top: 20px;
   background-color: #007bff;
   color: white;
   border: none;
@@ -115,81 +112,69 @@ button:hover {
   background-color: #0056b3;
 }
 
+.edit-info-btn {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+}
+
 .gift-idea-btn {
-  margin-top: 10px;
-  background-color: #28a745;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #FFA500;
 }
 
 .gift-idea-btn:hover {
-  background-color: #218838;
+  background-color: #FF8C00;
 }
 
-.group-list-container {
-  width: 100%;
-  max-width: 1200px;
+.groups-grid, .members-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
 }
 
-.groups-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns */
-  gap: 10px; /* Reduced gap */
-  justify-content: center; /* Center the grid items */
-  margin-top: 20px;
-}
-
-.group-card {
-  position: relative;
+.group-card, .member-card {
+  background-color: #d3d3d3;
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   text-align: center;
+  width: 150px; /* Fixed width for square shape */
+  height: 100px; /* Adjusted height */
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 150px; /* Fixed width for square shape */
-  height: 150px; /* Fixed height for square shape */
-  color: white; /* Text color to be visible on dark backgrounds */
 }
 
-.group-card.add-group {
-  font-size: 2em;
+.group-card.add-group, .member-card.add-member {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
-.delete-button {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  background: red;
+.remove-button, .add-button, .delete-button {
+  background-color: red;
   color: white;
   border: none;
-  border-radius: 10px; /* Rounded square */
-  width: 25px; /* Adjust width and height for square shape */
-  height: 25px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 16px;
-  line-height: 1; /* Ensure "x" is centered */
-  text-align: center;
+  border-radius: 5px;
+  padding: 5px 10px;
   cursor: pointer;
+  margin-top: 10px;
 }
 
-.delete-button:hover {
-  background: darkred;
+.remove-button:hover, .add-button:hover, .delete-button:hover {
+  background-color: darkred;
 }
 
-.google-login {
-  display: block;
-  margin-top: 20px;
-  padding: 10px;
-  background-color: #4285F4;
-  color: white;
-  text-align: center;
-  border-radius: 4px;
-  text-decoration: none;
-  font-weight: bold;
+.add-button {
+  background-color: green;
 }
 
-.google-login:hover {
-  background-color: #357ae8;
+.add-button:hover {
+  background-color: darkgreen;
 }

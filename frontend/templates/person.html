@@ -4,20 +4,27 @@
 <div class="person-container">
     <h2>{{ person.name }}</h2>
     <div class="person-details">
-        <div class="person-info">
+        <div class="person-info-left">
+            <p><strong>Nickname:</strong> {{ person.nickname if person.nickname else 'Not specified' }}</p>
+            <p><strong>Pronouns:</strong> {{ person.pronouns if person.pronouns else 'Not specified' }}</p>
             <p><strong>Birthday:</strong> {{ person.birthday if person.birthday else 'Not specified' }}</p>
-            <p><strong>Relationship:</strong> {{ person.relationship if person.relationship else 'Not specified' }}</p>
             <p><strong>Anniversaries:</strong> {{ person.anniversaries if person.anniversaries else 'Not specified' }}</p>
             <p><strong>Likes:</strong> {{ person.likes if person.likes else 'Not specified' }}</p>
             <p><strong>Dislikes:</strong> {{ person.dislikes if person.dislikes else 'Not specified' }}</p>
             <p><strong>Allergies:</strong> {{ person.allergies if person.allergies else 'Not specified' }}</p>
-            <p><strong>Reminders:</strong> {{ person.reminders if person.reminders else 'Not specified' }}</p>
-            <p><strong>How We Met:</strong> {{ person.how_we_met if person.how_we_met else 'Not specified' }}</p>
-            <p><strong>Favorite Memory:</strong> {{ person.favorite_memory if person.favorite_memory else 'Not specified' }}</p>
-            <p><strong>Recent Updates:</strong> {{ person.recent_updates if person.recent_updates else 'Not specified' }}</p>
+        </div>
+        <div class="person-info-right">
+            <h3>Important reminders:</h3>
+            <p>{{ person.reminders if person.reminders else 'Not specified' }}</p>
+            <h3>How we met:</h3>
+            <p>{{ person.how_we_met if person.how_we_met else 'Not specified' }}</p>
+            <h3>Favorite memory:</h3>
+            <p>{{ person.favorite_memory if person.favorite_memory else 'Not specified' }}</p>
+            <h3>Recent life updates:</h3>
+            <p>{{ person.recent_updates if person.recent_updates else 'Not specified' }}</p>
         </div>
     </div>
-    <button onclick="window.location.href='{{ url_for('edit_person', person_id=person.person_id) }}'">Edit Information</button>
+    <button class="edit-info-btn" onclick="window.location.href='{{ url_for('edit_person', person_id=person.person_id) }}'">Edit Information</button>
+    <button class="gift-idea-btn" onclick="getGiftIdea()">Get a gift idea!</button>
 </div>
-<button class="gift-idea-btn" onclick="getGiftIdea()">Get a gift idea!</button>
 {% endblock %}

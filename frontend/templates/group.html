@@ -3,22 +3,32 @@
 {% block content %}
 <div class="group-container">
     <h2>Group: {{ group.group_name }}</h2>
-    <h3>Members</h3>
-    <ul>
+    <div class="members-container">
       {% for member in members %}
-        <li>
+        <div class="member-card" id="member-card-{{ member.person_id }}">
           <a href="{{ url_for('view_person', person_id=member.person_id) }}">{{ member.name }}</a>
           <form action="{{ url_for('remove_member', group_id=group.group_id, person_id=member.person_id) }}" method="POST" style="display:inline;">
-            <button type="submit">Remove</button>
+            <button type="submit" class="remove-button">Remove</button>
           </form>
-        </li>
+        </div>
       {% endfor %}
-    </ul>
-    <h3>Add Member</h3>
-    <form action="{{ url_for('add_member', group_id=group.group_id) }}" method="post">
-        <input type="text" name="name" placeholder="name" required>
-        <button type="submit">Add</button>
-    </form>
+      <div class="member-card add-member">
+        <form action="{{ url_for('add_member', group_id=group.group_id) }}" method="post">
+            <input type="text" name="name" placeholder="New Member Name" required>
+            <button type="submit" class="add-button">+</button>
+        </form>
+      </div>
+    </div>
 </div>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', 'b8f09e'];
+    const memberCards = document.querySelectorAll('.member-card');
+    
+    memberCards.forEach(card => {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      card.style.backgroundColor = randomColor;
+    });
+  });
+</script>
 {% endblock %}
-
