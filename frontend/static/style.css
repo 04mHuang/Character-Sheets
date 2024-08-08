@@ -65,7 +65,7 @@ nav {
   flex-direction: column;
   align-items: center;
   width: 100%;
-  padding: 20px;
+  padding: 20px 0;
 }
 
 .flashes-container {
@@ -125,6 +125,7 @@ nav {
   padding: 15px; /* Increased padding */
   margin-bottom: 20px;
   background-color: #000000;
+  font-weight: bold;
   color: white;
   border: none;
   border-radius: 5px;
@@ -362,7 +363,7 @@ button:hover {
   border-radius: 4px; 
   box-sizing: border-box;
   margin-top: 6px; 
-  background-color:#fffeac;
+  background-color:#ffffff;
 }
 textarea, input[type="date"] {
   font-family: Arial, sans-serif;

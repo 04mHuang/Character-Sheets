@@ -33,7 +33,7 @@
           {% endfor %}
           <div class="group-card add-group">
               <form action="{{ url_for('create_group') }}" method="POST">
-                  <input type="text" name="group_name" placeholder="New Group Name" required>
+                  <input type="text" name="group_name" class="new-name" placeholder="New Group Name" required>
                   <button type="submit" class="add-button">Add</button>
               </form>
           </div>
