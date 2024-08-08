@@ -152,34 +152,53 @@ def view_group(group_id):
 @app.route('/group/<int:group_id>/add_member', methods=['POST'])
 def add_member(group_id):
     if 'username' not in session:
-        return redirect(url_for('login'))    
-    if request.method == 'POST':
-        name = request.form['name']
-        existing_person = Person.query.filter_by(name=name, user_id=session['user_id']).first()
-        group = Group.query.get(group_id)
-        if existing_person:
+        return redirect(url_for('login'))
+    
+    name = request.form['name']
+    user_id = session['user_id']
+    group = Group.query.get(group_id)
+    
+    if not group or group.user_id != user_id:
+        return redirect(url_for('base'))
+    
+    # Check if the person already exists
+    existing_person = Person.query.filter_by(name=name, user_id=user_id).first()
+    
+    if existing_person:
+        if existing_person not in group.people:
             group.people.append(existing_person)
-            return redirect(url_for('view_group', group_id=group_id))
-        
-        # TODO: needs to redirect to character sheet form
-        new_person = Person(user_id=session['user_id'], name=name)
-        db.session.add(new_person)
-        db.session.commit()
-        if group and group.user_id == session['user_id']:
-            # Add the new person to the group
-            group.people.append(new_person)
             db.session.commit()
-        
-    return redirect(url_for('edit_person', person_id=new_person.person_id))
+        return redirect(url_for('view_group', group_id=group_id))
+    
+    # Create a new person
+    new_person = Person(user_id=user_id, name=name)
+    db.session.add(new_person)
+    db.session.commit()
+    
+    # Add the new person to the group
+    group.people.append(new_person)
+    db.session.commit()
+    
+    return redirect(url_for('view_group', group_id=group_id))
+
     
 @app.route('/group/<int:group_id>/remove_member/<int:person_id>', methods=['POST'])
 def remove_member(group_id, person_id):
     if 'username' not in session:
         return redirect(url_for('login'))
+    
     group = Group.query.get(group_id)
     person = Person.query.get(person_id)
-    group.people.remove(person)
-    db.session.commit()
+    if person:
+        group.people.remove(person)
+        db.session.commit()  # Ensure the group-person relationship is removed
+        
+        # Additional cleanup if necessary
+        # For example, deleting events related to this person in Google Calendar
+        
+        db.session.delete(person)  # Delete the person from the database
+        db.session.commit()
+        
     return redirect(url_for('view_group', group_id=group_id))
 
 @app.route('/person/<int:person_id>')
