@@ -1,38 +1,55 @@
 {% extends "base.html" %}
 {% block title %}Edit Person{% endblock %}
 {% block content %}
-<div class="edit-person-container">
-    <h2>Edit {{ person.name }}</h2>
-    <form action="{{ url_for('edit_person', person_id=person.person_id) }}" method="POST">
-        <label for="birthday">Birthday:</label>
-        <input type="date" id="birthday" name="birthday" value="{{ person.birthday }}" />
-        
+<div class="container">
+    <form action="{{ url_for('edit_person', person_id=person.person_id) }}" method="POST" class="group-container">
+        <h2>Editing {{ person.name }}</h2>
+        <label for="name">Name:</label>
+        <input type="text" id="name" class="edit-form-input" name="name" value="{{ person.name }}" />
+
+        <label for="nickname">Nickname:</label>
+        <input type="text" id="nickname" class="edit-form-input" name="nickname" value="{{ person.nickname }}" />
+
+        <label for="pronouns">Pronouns:</label>
+        <input type="text" id="pronouns" class="edit-form-input" name="pronouns" value="{{ person.pronouns }}" />
+
         <label for="relationship">Relationship:</label>
-        <input type="text" id="relationship" name="relationship" value="{{ person.relationship }}" />
+        <input type="text" id="relationship" class="edit-form-input" name="relationship" value="{{ person.relationship }}" />
+
+        <label for="birthday">Birthday:</label>
+        <br>
+        <i style="font-size: 13px;">This will create an annual Google Calendar event with reminders.</i>
+        <input type="date" id="birthday" class="edit-form-input" name="birthday" value="{{ person.birthday }}" />
         
-        <label for="anniversaries">Anniversaries:</label>
-        <input type="date" id="anniversaries" name="anniversaries" value="{{ person.anniversaries }}" />
+        <label for="anniversary_title">Anniversary (Title + Date):</label>
+        <br>
+        <i style="font-size: 13px;">This will create an annual Google Calendar event with reminders.</i>
+        <input type="text" id="anniversary_title" class="edit-form-input" name="anniversary_title" value="{{ person.anniversary_title }}" />
+
+        <label for="anniversary_date"></label>
+        <input type="date" id="anniversary_date" class="edit-form-input" name="anniversary_date" value="{{ person.anniversary_date }}" />
+
         
         <label for="likes">Likes:</label>
-        <textarea id="likes" name="likes">{{ person.likes }}</textarea>
+        <textarea id="likes" class="edit-form-input" name="likes">{{ person.likes }}</textarea>
         
         <label for="dislikes">Dislikes:</label>
-        <textarea id="dislikes" name="dislikes">{{ person.dislikes }}</textarea>
+        <textarea id="dislikes" class="edit-form-input" name="dislikes">{{ person.dislikes }}</textarea>
         
         <label for="allergies">Allergies:</label>
-        <textarea id="allergies" name="allergies">{{ person.allergies }}</textarea>
+        <textarea id="allergies" class="edit-form-input" name="allergies">{{ person.allergies }}</textarea>
 
         <label for="reminders">Important reminders:</label>
-        <textarea id="reminders" name="reminders">{{ person.reminders }}</textarea>
+        <textarea id="reminders" class="edit-form-input" name="reminders">{{ person.reminders }}</textarea>
         
         <label for="how_we_met">How we met:</label>
-        <textarea id="how_we_met" name="how_we_met">{{ person.how_we_met }}</textarea>
+        <textarea id="how_we_met" class="edit-form-input" name="how_we_met">{{ person.how_we_met }}</textarea>
         
         <label for="favorite_memory">Favorite memory:</label>
-        <textarea id="favorite_memory" name="favorite_memory">{{ person.favorite_memory }}</textarea>
+        <textarea id="favorite_memory" class="edit-form-input" name="favorite_memory">{{ person.favorite_memory }}</textarea>
         
         <label for="recent_updates">Recent life updates:</label>
-        <textarea id="recent_updates" name="recent_updates">{{ person.recent_updates }}</textarea>
+        <textarea id="recent_updates" class="edit-form-input" name="recent_updates">{{ person.recent_updates }}</textarea>
         
         <button type="submit">Save</button>
     </form>

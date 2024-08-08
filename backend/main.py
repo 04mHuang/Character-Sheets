@@ -68,9 +68,12 @@ class Person(db.Model):
     person_id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    nickname = db.Column(db.String(100), nullable=True)
+    pronouns = db.Column(db.String(100), nullable=True)
     birthday = db.Column(db.Date, nullable=True)
     relationship = db.Column(db.String(100), nullable=True)  # New field for relationship
-    anniversaries = db.Column(db.Date, nullable=True)  # New field for anniversaries
+    anniversary_title = db.Column(db.String(100), nullable=True)  # New field for anniversary title
+    anniversary_date = db.Column(db.Date, nullable=True)  # New field for anniversary date
     likes = db.Column(db.Text, nullable=True)  # Renamed field from interests to likes
     dislikes = db.Column(db.Text, nullable=True)  # New field for dislikes
     allergies = db.Column(db.Text, nullable=True)
@@ -209,6 +212,7 @@ def delete_previous_anniversary(prev_date, anniversary_title, credentials):
             service.events().delete(calendarId='primary', eventId=event.get('id')).execute()
 
 def create_anniversary_event(title, date, credentials):
+    print("Creating anniversary event===============================================================")
     service = get_google_calendar_service(credentials)
     event = {
         "summary": title,
@@ -242,9 +246,11 @@ def edit_person(person_id):
     
     if request.method == 'POST':
         prev_birthday = person.birthday
+        prev_anniversary = person.anniversary_date
         person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
         person.relationship = request.form['relationship'] if request.form['relationship'] else None
-        person.anniversaries = datetime.datetime.strptime(request.form['anniversaries'], '%Y-%m-%d').date() if request.form['anniversaries'] else None
+        person.anniversary_title = request.form['anniversary_title'] if request.form['anniversary_title'] else None
+        person.anniversary_date = datetime.datetime.strptime(request.form['anniversary_date'], '%Y-%m-%d').date() if request.form['anniversary_date'] else None
         person.likes = request.form['likes'] if request.form['likes'] else None
         person.dislikes = request.form['dislikes'] if request.form['dislikes'] else None
         person.allergies = request.form['allergies'] if request.form['allergies'] else None
@@ -265,6 +271,11 @@ def edit_person(person_id):
                     if prev_birthday is not None:
                         # prevent old events from lingering
                         delete_previous_anniversary(prev_birthday, birthday_title, credentials)
+                if prev_anniversary != person.anniversary_date:
+                    create_anniversary_event(person.anniversary_title, person.anniversary_date, credentials)
+                    if prev_anniversary is not None:
+                        # prevent old events from lingering
+                        delete_previous_anniversary(prev_anniversary, person.anniversary_title, credentials)
                 # Update session credentials
                 session['credentials'] = credentials_to_dict(credentials)
             except Exception as e:
