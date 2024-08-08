@@ -21,7 +21,7 @@
   </nav>
   <div class="container">
     {% if request.endpoint == 'base' and session.username %}
-      <div class="group-list-container">
+      <div class="group-container">
         <h2>Groups List</h2>
         <div class="groups-grid">
           {% for group in groups %}
@@ -35,7 +35,7 @@
           <div class="group-card add-group">
             <form action="{{ url_for('create_group') }}" method="POST">
               <input type="text" name="group_name" placeholder="New Group Name" required>
-              <button type="submit">+</button>
+              <button type="submit" class="add-button">+</button>
             </form>
           </div>
         </div>
@@ -45,15 +45,11 @@
   </div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', '#b8f09e'];
-      const backgroundColor = '#FFE4E1';
+      const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', 'b8f09e'];
       const groupCards = document.querySelectorAll('.group-card');
       
       groupCards.forEach(card => {
-        let randomColor;
-        do {
-          randomColor = colors[Math.floor(Math.random() * colors.length)];
-        } while (randomColor === backgroundColor);
+        const randomColor = colors[Math.floor(Math.random() * colors.length)];
         card.style.backgroundColor = randomColor;
       });
     });

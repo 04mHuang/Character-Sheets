@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, session, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
 from flask_migrate import Migrate
@@ -69,8 +69,15 @@ class Person(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('Users.user_id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     birthday = db.Column(db.Date, nullable=True)
+    relationship = db.Column(db.String(100), nullable=True)  # New field for relationship
+    anniversaries = db.Column(db.Date, nullable=True)  # New field for anniversaries
+    likes = db.Column(db.Text, nullable=True)  # Renamed field from interests to likes
+    dislikes = db.Column(db.Text, nullable=True)  # New field for dislikes
     allergies = db.Column(db.Text, nullable=True)
-    interests = db.Column(db.Text, nullable=True)
+    reminders = db.Column(db.Text, nullable=True)
+    how_we_met = db.Column(db.Text, nullable=True)
+    favorite_memory = db.Column(db.Text, nullable=True)
+    recent_updates = db.Column(db.Text, nullable=True)
 
     # Many-to-many relationship between People and Group
     groups = db.relationship('Group', secondary='GroupMembers', backref=db.backref('people', lazy='dynamic'))
@@ -233,6 +240,33 @@ def create_anniversary_event(title, date, credentials):
 def edit_person(person_id):
     person = Person.query.get_or_404(person_id)
     
+    if request.method == 'POST':
+        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
+        person.relationship = request.form['relationship'] if request.form['relationship'] else None
+        person.anniversaries = datetime.datetime.strptime(request.form['anniversaries'], '%Y-%m-%d').date() if request.form['anniversaries'] else None
+        person.likes = request.form['likes'] if request.form['likes'] else None
+        person.dislikes = request.form['dislikes'] if request.form['dislikes'] else None
+        person.allergies = request.form['allergies'] if request.form['allergies'] else None
+        person.reminders = request.form['reminders'] if request.form['reminders'] else None
+        person.how_we_met = request.form['how_we_met'] if request.form['how_we_met'] else None
+        person.favorite_memory = request.form['favorite_memory'] if request.form['favorite_memory'] else None
+        person.recent_updates = request.form['recent_updates'] if request.form['recent_updates'] else None
+        db.session.commit()
+        
+        # Check if user is logged in and has Google Calendar credentials
+        if 'credentials' in session:
+            try:
+                credentials = Credentials(**session['credentials'])
+                event_link = create_birthday_event(credentials, {"name": person.name, "birthday": person.birthday})
+                flash(f'Event created: {event_link}')
+                # Update session credentials
+                session['credentials'] = credentials_to_dict(credentials)
+            except Exception as e:
+                flash(f'An error occurred while creating the event: {str(e)}')
+        
+        return redirect(url_for('view_person', person_id=person_id))
+    
+    return render_template('edit_person.html', person=person)
     if request.method == 'POST':
         prev_birthday = person.birthday
         person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
