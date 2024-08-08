@@ -6,7 +6,7 @@
     <div class="members-container">
       {% for member in members %}
         <div class="member-card" id="member-card-{{ member.person_id }}">
-          <a href="{{ url_for('view_person', person_id=member.person_id) }}">{{ member.name }}</a>
+          <a href="{{ url_for('view_person', person_id=member.person_id) }}" class="card-name">{{ member.name }}</a>
           <form action="{{ url_for('remove_member', group_id=group.group_id, person_id=member.person_id) }}" method="POST" style="display:inline;">
             <button type="submit" class="remove-button">Remove</button>
           </form>
@@ -14,15 +14,15 @@
       {% endfor %}
       <div class="member-card add-member">
         <form action="{{ url_for('add_member', group_id=group.group_id) }}" method="post">
-            <input type="text" name="name" placeholder="New Member Name" required>
-            <button type="submit" class="add-button">+</button>
+            <input type="text" name="name" placeholder="New Member Name" class="new-name" required>
+            <button type="submit" class="add-button">Add new member</button>
         </form>
       </div>
     </div>
 </div>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
-    const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', 'b8f09e'];
+    const colors = ['#EBC1A7', '#F9C784', '#A9DBA4', '#9ED2DE', '#BD93ED', '#A9E090', '#93AAED', '#ED9393'];
     const memberCards = document.querySelectorAll('.member-card');
     
     memberCards.forEach(card => {

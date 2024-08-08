@@ -26,16 +26,16 @@
         <div class="groups-grid">
           {% for group in groups %}
             <div class="group-card" id="group-card-{{ group.group_id }}">
-              <a href="{{ url_for('view_group', group_id=group.group_id) }}">{{ group.group_name }}</a>
+              <a href="{{ url_for('view_group', group_id=group.group_id) }}" class="card-name">{{ group.group_name }}</a>
               <form action="{{ url_for('delete_group', group_id=group.group_id) }}" method="POST" style="display:inline;">
-                <button type="submit" class="delete-button">x</button>
+                <button type="submit" class="delete-button">Delete group</button>
               </form>
             </div>
           {% endfor %}
           <div class="group-card add-group">
             <form action="{{ url_for('create_group') }}" method="POST">
-              <input type="text" name="group_name" placeholder="New Group Name" required>
-              <button type="submit" class="add-button">+</button>
+              <input type="text" name="group_name" placeholder="New Group Name" class="new-name" required>
+              <button type="submit" class="add-button">Add group</button>
             </form>
           </div>
         </div>
@@ -45,7 +45,7 @@
   </div>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const colors = ['#D94A29', '#F9C784', '#A5C3A2', '#89A9B0', '#aa7fdb', 'b8f09e'];
+      const colors = ['#EBC1A7', '#F9C784', '#A9DBA4', '#9ED2DE', '#BD93ED', '#A9E090', '#93AAED', '#ED9393'];
       const groupCards = document.querySelectorAll('.group-card');
       
       groupCards.forEach(card => {

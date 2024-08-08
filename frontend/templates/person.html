@@ -7,8 +7,13 @@
         <div class="person-info-left">
             <p><strong>Nickname:</strong> {{ person.nickname if person.nickname else 'Not specified' }}</p>
             <p><strong>Pronouns:</strong> {{ person.pronouns if person.pronouns else 'Not specified' }}</p>
+            <p><strong>Relationship:</strong> {{ person.relationship if person.relationship else 'Not specified' }}</p>
             <p><strong>Birthday:</strong> {{ person.birthday if person.birthday else 'Not specified' }}</p>
-            <p><strong>Anniversaries:</strong> {{ person.anniversaries if person.anniversaries else 'Not specified' }}</p>
+            <p>
+                <strong>Anniversaries:</strong> 
+                {{ person.anniversary_title if person.anniversary_title else 'Not specified' }}
+                ({{ person.anniversary_date if person.anniversary_date else 'Not specified' }})
+            </p>
             <p><strong>Likes:</strong> {{ person.likes if person.likes else 'Not specified' }}</p>
             <p><strong>Dislikes:</strong> {{ person.dislikes if person.dislikes else 'Not specified' }}</p>
             <p><strong>Allergies:</strong> {{ person.allergies if person.allergies else 'Not specified' }}</p>

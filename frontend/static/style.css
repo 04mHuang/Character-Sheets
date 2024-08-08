@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #FFE4E1;
+  background-color: #fcf1f0;
   margin: 0;
   padding: 0;
 }
@@ -26,14 +26,17 @@ nav {
   margin-right: 20px;
 }
 
-#nav-bar #home {
-  font-size: 24px;
+#home {
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-size: 28px;
   font-weight: bold;
 }
 
 #nav-bar #search-bar {
   flex-grow: 1;
-  padding: 5px;
+  padding: 7px;
+  border-radius: 7px;
+  border: 1px solid #ccc;
 }
 
 #nav-bar a {
@@ -51,7 +54,7 @@ nav {
   justify-content: center;
   align-items: flex-start;
   flex-direction: column;
-  padding: 20px;
+  padding: 15px 0;
   width: 100%;
 }
 
@@ -62,7 +65,7 @@ nav {
   background-color: #ffcccc; /* Pastel pink slightly darker than the background */
   padding: 20px;
   border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .person-container {
@@ -101,7 +104,7 @@ h2, h3 {
 
 button {
   padding: 10px 20px;
-  background-color: #007bff;
+  background-color: #4a95e6;
   color: white;
   border: none;
   border-radius: 5px;
@@ -122,17 +125,17 @@ button:hover {
   position: absolute;
   bottom: 20px;
   right: 20px;
-  background-color: #FFA500;
+  background-color: #fc8021;
 }
 
 .gift-idea-btn:hover {
-  background-color: #FF8C00;
+  background-color: #bd7216;
 }
 
 .groups-grid, .members-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 20px;
   justify-content: center;
 }
 
@@ -140,7 +143,7 @@ button:hover {
   background-color: #d3d3d3;
   padding: 20px;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.4);
   text-align: center;
   width: 150px; /* Fixed width for square shape */
   height: 100px; /* Adjusted height */
@@ -158,7 +161,7 @@ button:hover {
 }
 
 .remove-button, .add-button, .delete-button {
-  background-color: red;
+  background-color: rgb(142, 26, 26);
   color: white;
   border: none;
   border-radius: 5px;
@@ -168,7 +171,7 @@ button:hover {
 }
 
 .remove-button:hover, .add-button:hover, .delete-button:hover {
-  background-color: darkred;
+  background-color: rgb(67, 18, 18);
 }
 
 .add-button {
@@ -177,4 +180,48 @@ button:hover {
 
 .add-button:hover {
   background-color: darkgreen;
+}
+.edit-form-input {
+  width: 100%; 
+  padding: 12px; 
+  border: 1px solid #ccc;
+  border-radius: 4px; 
+  box-sizing: border-box;
+  margin-top: 6px; 
+  margin-bottom: 16px;
+  resize: vertical;
+}
+.card-name {
+  display: inline-block;
+  padding: 10px 20px; 
+  font-size: 18px; 
+  font-weight: bold;
+  color: rgb(0, 0, 0); 
+  background-color: #fcf1f0;
+  text-decoration: none; 
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+.card-name:hover {
+  background-color: #ffbcbc; 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
+}
+
+.card-name:active {
+  background-color: #fcf1f0;
+}
+.new-name {
+  padding: 12px 4px; 
+  border: 1px solid #5d5d5d;
+  border-radius: 4px; 
+  box-sizing: border-box;
+  margin-top: 6px; 
+}
+textarea, input[type="date"] {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+label {
+  font-weight: bold;
 }

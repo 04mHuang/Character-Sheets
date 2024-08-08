@@ -4,24 +4,24 @@
 <div class="container">
     <form action="{{ url_for('edit_person', person_id=person.person_id) }}" method="POST" class="group-container">
         <h2>Editing {{ person.name }}</h2>
-        <label for="name">Name:</label>
+        <label for="name">Wjat is their name? *</label>
         <input type="text" id="name" class="edit-form-input" name="name" value="{{ person.name }}" />
 
-        <label for="nickname">Nickname:</label>
+        <label for="nickname">What's their nickname?</label>
         <input type="text" id="nickname" class="edit-form-input" name="nickname" value="{{ person.nickname }}" />
 
-        <label for="pronouns">Pronouns:</label>
+        <label for="pronouns">What are their pronouns?</label>
         <input type="text" id="pronouns" class="edit-form-input" name="pronouns" value="{{ person.pronouns }}" />
 
-        <label for="relationship">Relationship:</label>
+        <label for="relationship">What's your relationship like?</label>
         <input type="text" id="relationship" class="edit-form-input" name="relationship" value="{{ person.relationship }}" />
 
-        <label for="birthday">Birthday:</label>
+        <label for="birthday">When's their birthday?</label>
         <br>
         <i style="font-size: 13px;">This will create an annual Google Calendar event with reminders.</i>
         <input type="date" id="birthday" class="edit-form-input" name="birthday" value="{{ person.birthday }}" />
         
-        <label for="anniversary_title">Anniversary (Title + Date):</label>
+        <label for="anniversary_title">Is there an important anniversary? Include the title and date!</label>
         <br>
         <i style="font-size: 13px;">This will create an annual Google Calendar event with reminders.</i>
         <input type="text" id="anniversary_title" class="edit-form-input" name="anniversary_title" value="{{ person.anniversary_title }}" />
@@ -30,13 +30,13 @@
         <input type="date" id="anniversary_date" class="edit-form-input" name="anniversary_date" value="{{ person.anniversary_date }}" />
 
         
-        <label for="likes">Likes:</label>
+        <label for="likes">What are their likes?</label>
         <textarea id="likes" class="edit-form-input" name="likes">{{ person.likes }}</textarea>
         
-        <label for="dislikes">Dislikes:</label>
+        <label for="dislikes">What are their dislikes?</label>
         <textarea id="dislikes" class="edit-form-input" name="dislikes">{{ person.dislikes }}</textarea>
         
-        <label for="allergies">Allergies:</label>
+        <label for="allergies">What are they allergic to?</label>
         <textarea id="allergies" class="edit-form-input" name="allergies">{{ person.allergies }}</textarea>
 
         <label for="reminders">Important reminders:</label>

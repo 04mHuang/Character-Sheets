@@ -155,7 +155,7 @@ def add_member(group_id):
         return redirect(url_for('login'))    
     if request.method == 'POST':
         name = request.form['name']
-        existing_person = Person.query.filter_by(name=name).first()
+        existing_person = Person.query.filter_by(name=name, user_id=session['user_id']).first()
         group = Group.query.get(group_id)
         if existing_person:
             group.people.append(existing_person)
@@ -170,7 +170,7 @@ def add_member(group_id):
             group.people.append(new_person)
             db.session.commit()
         
-    return redirect(url_for('view_group', group_id=group_id))
+    return redirect(url_for('edit_person', person_id=new_person.person_id))
     
 @app.route('/group/<int:group_id>/remove_member/<int:person_id>', methods=['POST'])
 def remove_member(group_id, person_id):
@@ -259,7 +259,7 @@ def edit_person(person_id):
         person.favorite_memory = request.form['favorite_memory'] if request.form['favorite_memory'] else None
         person.recent_updates = request.form['recent_updates'] if request.form['recent_updates'] else None
         db.session.commit()
-        
+
         # Check if user is logged in and has Google Calendar credentials
         if 'credentials' in session:
             try:
