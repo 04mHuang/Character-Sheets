@@ -3,15 +3,27 @@
 {% block content %}
 <div class="edit-person-container">
     <h2>Edit {{ person.name }}</h2>
-    <form action="{{ url_for('edit_person', person_id=person.person_id) }}" method="post">
+    <form action="{{ url_for('edit_person', person_id=person.person_id) }}" method="POST">
         <label for="birthday">Birthday:</label>
-        <input type="date" id="birthday" name="birthday" value="{{ person.birthday if person.birthday else '' }}">
+        <input type="date" id="birthday" name="birthday" value="{{ person.birthday }}" />
         
         <label for="allergies">Allergies:</label>
-        <textarea id="allergies" name="allergies">{{ person.allergies if person.allergies else '' }}</textarea>
+        <textarea id="allergies" name="allergies">{{ person.allergies }}</textarea>
         
         <label for="interests">Interests:</label>
-        <textarea id="interests" name="interests">{{ person.interests if person.interests else '' }}</textarea>
+        <textarea id="interests" name="interests">{{ person.interests }}</textarea>
+
+        <label for="reminders">Important reminders:</label>
+        <textarea id="reminders" name="reminders">{{ person.reminders }}</textarea>
+        
+        <label for="how_we_met">How we met:</label>
+        <textarea id="how_we_met" name="how_we_met">{{ person.how_we_met }}</textarea>
+        
+        <label for="favorite_memory">Favorite memory:</label>
+        <textarea id="favorite_memory" name="favorite_memory">{{ person.favorite_memory }}</textarea>
+        
+        <label for="recent_updates">Recent life updates:</label>
+        <textarea id="recent_updates" name="recent_updates">{{ person.recent_updates }}</textarea>
         
         <button type="submit">Save</button>
     </form>

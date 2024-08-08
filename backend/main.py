@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, session, request
+from flask import Flask, render_template, redirect, url_for, session, request, flash
 from flask_sqlalchemy import SQLAlchemy
 from waitress import serve
 from flask_migrate import Migrate
@@ -10,6 +10,7 @@ import logging
 from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from googleapiclient.discovery import build
+import datetime
 
 # Load environment variables from .env file
 load_dotenv()
@@ -56,6 +57,11 @@ class Person(db.Model):
     birthday = db.Column(db.Date, nullable=True)
     allergies = db.Column(db.Text, nullable=True)
     interests = db.Column(db.Text, nullable=True)
+    reminders = db.Column(db.Text, nullable=True)  # New field for important reminders
+    how_we_met = db.Column(db.Text, nullable=True)  # New field for how we met
+    favorite_memory = db.Column(db.Text, nullable=True)  # New field for favorite memory
+    recent_updates = db.Column(db.Text, nullable=True)  # New field for recent life updates
+
 
     # Many-to-many relationship between People and Group
     groups = db.relationship('Group', secondary='GroupMembers', backref=db.backref('people', lazy='dynamic'))
@@ -169,37 +175,35 @@ def view_person(person_id):
     else:
         return redirect(url_for('base'))
     
-@app.route('/person/<int:person_id>/edit', methods=['GET', 'POST'])
+@app.route('/edit_person/<int:person_id>', methods=['GET', 'POST'])
 def edit_person(person_id):
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    person = Person.query.get_or_404(person_id)
     
-    person = Person.query.get(person_id)
-    if person and person.user_id == session['user_id']:
-        if request.method == 'POST':
-            birthday = request.form['birthday']
-            if birthday:
-                person.birthday = birthday
-            else:
-                person.birthday = None
-            
-            allergies = request.form['allergies']
-            if allergies:
-                person.allergies = allergies
-            else:
-                person.allergies = None
-            
-            interests = request.form['interests']
-            if interests:
-                person.interests = interests
-            else:
-                person.interests = None
-            
-            db.session.commit()
-            return redirect(url_for('view_person', person_id=person_id))
-        return render_template('edit_person.html', person=person)
-    else:
-        return redirect(url_for('base'))
+    if request.method == 'POST':
+        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
+        person.allergies = request.form['allergies'] if request.form['allergies'] else None
+        person.interests = request.form['interests'] if request.form['interests'] else None
+        person.reminders = request.form['reminders'] if request.form['reminders'] else None
+        person.how_we_met = request.form['how_we_met'] if request.form['how_we_met'] else None
+        person.favorite_memory = request.form['favorite_memory'] if request.form['favorite_memory'] else None
+        person.recent_updates = request.form['recent_updates'] if request.form['recent_updates'] else None
+        db.session.commit()
+        
+        # Check if user is logged in and has Google Calendar credentials
+        if 'credentials' in session:
+            try:
+                credentials = Credentials(**session['credentials'])
+                event_link = create_birthday_event(credentials, {"name": person.name, "birthday": person.birthday})
+                flash(f'Event created: {event_link}')
+                # Update session credentials
+                session['credentials'] = credentials_to_dict(credentials)
+            except Exception as e:
+                flash(f'An error occurred while creating the event: {str(e)}')
+        
+        return redirect(url_for('view_person', person_id=person_id))
+    
+    return render_template('edit_person.html', person=person)
+
 
 
 # use /users to see the tables, just to make sure the sql works with the flask
