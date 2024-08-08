@@ -103,8 +103,9 @@ def base():
         return redirect(url_for('login'))
     
     user_id = session['user_id']
+    username = session['username']
     groups = Group.query.filter_by(user_id=user_id).all()
-    return render_template('base.html', groups=groups)
+    return render_template('base.html', groups=groups, username=username)
 
 @app.route('/create_group', methods=['POST'])
 def create_group():
@@ -384,7 +385,7 @@ def callback():
     )
     session["google_id"] = id_info.get("sub")
     session["email"] = id_info["email"]
-    session["name"] = id_info.get("name")
+    session["name"] = id_info.get("name") or id_info["email"].split('@')[0]
     
     user = User.query.filter_by(email=session["email"]).first()
     if not user:

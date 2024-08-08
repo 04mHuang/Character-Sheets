@@ -6,7 +6,7 @@ body {
 }
 
 nav {
-  background-color: #ffbcbc;
+  background-color: #000000;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -41,7 +41,7 @@ nav {
 
 #nav-bar a {
   text-decoration: none;
-  color: black;
+  color: rgb(255, 255, 255);
   font-weight: bold;
 }
 
@@ -56,6 +56,16 @@ nav {
   flex-direction: column;
   padding: 15px 0;
   width: 100%;
+  margin: 0 auto;  /* Center the container horizontally */
+}
+
+/* Ensure the group container is centered and styled */
+.group-list-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
 }
 
 .flashes-container {
@@ -283,6 +293,16 @@ button:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+.group-card.add-group form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.group-card.add-group input {
+  margin-bottom: 10px; /* Add margin to the bottom of the input field */
 }
 
 .remove-button, .add-button, .delete-button {
