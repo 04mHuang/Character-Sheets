@@ -8,8 +8,18 @@ import requests
 import json
 import logging
 from dotenv import load_dotenv
-from google_auth_oauthlib.flow import Flow
+
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+
+from google_auth_oauthlib.flow import Flow
+import datetime
+from google.oauth2 import id_token
+from google_auth_oauthlib.flow import Flow
+from pip._vendor import cachecontrol
+import google.auth.transport.requests
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,6 +29,15 @@ logging.basicConfig(level=logging.INFO)
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
 app.secret_key = os.getenv('SECRET_KEY')
+os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+
+flow = Flow.from_client_secrets_file(
+    client_secrets_file="credentials.json",
+    scopes=["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email", "openid", 'https://www.googleapis.com/auth/calendar'],
+    redirect_uri="http://localhost:3000/callback"
+)
 
 # Configure the database connection
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URI')
@@ -26,10 +45,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
-
-GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
-GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
 
 client = WebApplicationClient(GOOGLE_CLIENT_ID)
 
@@ -67,7 +82,6 @@ group_members = db.Table('GroupMembers',
 )
 
 # Google Calendar API setup
-SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
 def get_google_calendar_service(credentials):
     return build('calendar', 'v3', credentials=credentials)
@@ -169,37 +183,78 @@ def view_person(person_id):
     else:
         return redirect(url_for('base'))
     
-@app.route('/person/<int:person_id>/edit', methods=['GET', 'POST'])
+def delete_previous_anniversary(prev_date, anniversary_title, credentials):
+    start_time = datetime.datetime.combine(prev_date, datetime.time.min).isoformat() + 'Z'
+    end_time = datetime.datetime.combine(prev_date, datetime.time.max).isoformat() + 'Z'
+    service = get_google_calendar_service(credentials)
+    events_result = service.events().list(
+        calendarId='primary',
+        timeMin=start_time,
+        timeMax=end_time,
+        q=anniversary_title,
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute().get('items', [])
+
+    if events_result:
+        for event in events_result:
+            print(f"Deleting event: {event.get('summary')} (ID: {event.get('id')})")
+            service.events().delete(calendarId='primary', eventId=event.get('id')).execute()
+
+def create_anniversary_event(title, date, credentials):
+    service = get_google_calendar_service(credentials)
+    event = {
+        "summary": title,
+        "description": "Anniversary reminder from Character Sheets!",
+        "start": {
+            "date": date.isoformat(),
+            "timeZone": "America/Los_Angeles",
+        },
+        "end": {
+            "date": date.isoformat(),
+            "timeZone": "America/Los_Angeles",
+        },
+        "recurrence": ["RRULE:FREQ=YEARLY"],
+        # reminders 1 week before and on the day of the event
+        "reminders": {
+            "useDefault": False,
+            "overrides": [
+            {"method": "email", "minutes": 7 * 24 * 60},
+            {"method": "email", "minutes": 0},
+            ],
+        },
+    }
+    try:
+        event = service.events().insert(calendarId='primary', body=event).execute()
+    except HttpError as error:
+        print(f"An error occurred: {error}")
+
+@app.route('/edit_person/<int:person_id>', methods=['GET', 'POST'])
 def edit_person(person_id):
-    if 'username' not in session:
-        return redirect(url_for('login'))
+    person = Person.query.get_or_404(person_id)
     
-    person = Person.query.get(person_id)
-    if person and person.user_id == session['user_id']:
-        if request.method == 'POST':
-            birthday = request.form['birthday']
-            if birthday:
-                person.birthday = birthday
-            else:
-                person.birthday = None
-            
-            allergies = request.form['allergies']
-            if allergies:
-                person.allergies = allergies
-            else:
-                person.allergies = None
-            
-            interests = request.form['interests']
-            if interests:
-                person.interests = interests
-            else:
-                person.interests = None
-            
-            db.session.commit()
-            return redirect(url_for('view_person', person_id=person_id))
-        return render_template('edit_person.html', person=person)
-    else:
-        return redirect(url_for('base'))
+    if request.method == 'POST':
+        prev_birthday = person.birthday
+        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
+        person.allergies = request.form['allergies'] if request.form['allergies'] else None
+        person.interests = request.form['interests'] if request.form['interests'] else None
+        db.session.commit()
+        
+        if 'credentials' in session:
+            credentials = Credentials(**session['credentials'])
+            # prevent duplicate events
+            if prev_birthday != person.birthday:
+                birthday_title = f"{person.name}'s Birthday"
+                create_anniversary_event(birthday_title, person.birthday, credentials)
+                if prev_birthday is not None:
+                    # prevent old events from lingering
+                    delete_previous_anniversary(prev_birthday, birthday_title, credentials)
+            # Update session credentials
+            session['credentials'] = credentials_to_dict(credentials)
+        
+        return redirect(url_for('view_person', person_id=person_id))
+    
+    return render_template('edit_person.html', person=person)
 
 
 # use /users to see the tables, just to make sure the sql works with the flask
@@ -254,54 +309,44 @@ def login():
 
 @app.route('/google_login', methods=['GET'])
 def google_login():
-    flow = Flow.from_client_secrets_file(
-        'credentials.json',
-        scopes=SCOPES,
-        redirect_uri="http://localhost:3000/login/callback"
-    )
-    authorization_url, state = flow.authorization_url(
-        access_type='offline',
-        include_granted_scopes='true'
-    )
+    authorization_url, state = flow.authorization_url()
+    app.logger.info(f"URL: {authorization_url}")
+    app.logger.info(f"Saved state: {state}")
     session['state'] = state
     return redirect(authorization_url)
 
-@app.route("/login/callback")
+@app.route("/callback")
 def callback():
-    state = session['state']
-    flow = Flow.from_client_secrets_file(
-        'credentials.json',
-        scopes=SCOPES,
-        state=state,
-        redirect_uri=url_for('callback', _external=True)
-    )
     flow.fetch_token(authorization_response=request.url)
+
+    state = session.get('state')
+    app.logger.info(f"Saved state: {state}")
+    if not state:
+        return "State mismatch error.", 400
     credentials = flow.credentials
+    request_session = requests.session()
+    cached_session = cachecontrol.CacheControl(request_session)
+    token_request = google.auth.transport.requests.Request(session=cached_session)
 
-    session['credentials'] = credentials_to_dict(credentials)
-
-    userinfo_endpoint = "https://www.googleapis.com/oauth2/v1/userinfo"
-    params = {'alt': 'json', 'access_token': credentials.token}
-    userinfo_response = requests.get(userinfo_endpoint, params=params)
-    userinfo = userinfo_response.json()
-
-    if userinfo.get("email_verified"):
-        users_email = userinfo["email"]
-        users_name = userinfo["name"]
-    else:
-        return "User email not available or not verified by Google.", 400
-
-    user = User.query.filter_by(email=users_email).first()
+    id_info = id_token.verify_oauth2_token(
+        id_token=credentials._id_token,
+        request=token_request,
+        audience=GOOGLE_CLIENT_ID
+    )
+    session["google_id"] = id_info.get("sub")
+    session["email"] = id_info["email"]
+    session["name"] = id_info.get("name")
+    
+    user = User.query.filter_by(email=session["email"]).first()
     if not user:
         user = User(
-            username=users_name, email=users_email, password="" # You may want to store a dummy password or hash
+            username=session["name"], email=session["email"], password="notHashed"  # You may want to store a dummy password or hash
         )
         db.session.add(user)
         db.session.commit()
-
     session['user_id'] = user.user_id
     session['username'] = user.username
-
+    session['credentials'] = credentials_to_dict(credentials)
     return redirect(url_for("base"))
 
 @app.route('/logout')
@@ -333,12 +378,14 @@ def check_session():
         return 'User is not logged in'
 
 def credentials_to_dict(credentials):
-    return {'token': credentials.token,
-            'refresh_token': credentials.refresh_token,
-            'token_uri': credentials.token_uri,
-            'client_id': credentials.client_id,
-            'client_secret': credentials.client_secret,
-            'scopes': credentials.scopes}
+    return {
+        'token': credentials.token,
+        'refresh_token': credentials.refresh_token,
+        'token_uri': credentials.token_uri,
+        'client_id': credentials.client_id,
+        'client_secret': credentials.client_secret,
+        'scopes': credentials.scopes
+    }
 
 if __name__ == '__main__':
     logging.info("Creating database tables...")
