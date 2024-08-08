@@ -7,11 +7,20 @@
         <label for="birthday">Birthday:</label>
         <input type="date" id="birthday" name="birthday" value="{{ person.birthday }}" />
         
+        <label for="relationship">Relationship:</label>
+        <input type="text" id="relationship" name="relationship" value="{{ person.relationship }}" />
+        
+        <label for="anniversaries">Anniversaries:</label>
+        <input type="date" id="anniversaries" name="anniversaries" value="{{ person.anniversaries }}" />
+        
+        <label for="likes">Likes:</label>
+        <textarea id="likes" name="likes">{{ person.likes }}</textarea>
+        
+        <label for="dislikes">Dislikes:</label>
+        <textarea id="dislikes" name="dislikes">{{ person.dislikes }}</textarea>
+        
         <label for="allergies">Allergies:</label>
         <textarea id="allergies" name="allergies">{{ person.allergies }}</textarea>
-        
-        <label for="interests">Interests:</label>
-        <textarea id="interests" name="interests">{{ person.interests }}</textarea>
 
         <label for="reminders">Important reminders:</label>
         <textarea id="reminders" name="reminders">{{ person.reminders }}</textarea>
