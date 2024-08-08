@@ -263,7 +263,10 @@ def create_anniversary_event(title, date, credentials):
 @app.route('/edit_person/<int:person_id>', methods=['GET', 'POST'])
 def edit_person(person_id):
     person = Person.query.get_or_404(person_id)
-    
+    # needed to remove old data from google calendar
+    prev_birthday = person.birthday
+    prev_anniversary_date = person.anniversary_date
+    prev_anniversary_title = person.anniversary_title
     if request.method == 'POST':
         # Ensure all fields are updated correctly
         person.name = request.form['name']
@@ -288,11 +291,18 @@ def edit_person(person_id):
             try:
                 credentials = Credentials(**session['credentials'])
                 # Create or update calendar events for birthday and anniversary
-                if person.birthday:
+                # prevent duplicate events
+                if prev_birthday != person.birthday:
                     birthday_title = f"{person.name}'s Birthday"
                     create_anniversary_event(birthday_title, person.birthday, credentials)
-                if person.anniversary_date:
+                    if prev_birthday is not None:
+                        # prevent old events from staying in Google Calendar
+                        delete_previous_anniversary(prev_birthday, birthday_title, credentials)
+                if prev_anniversary_date != person.anniversary_date or prev_anniversary_title != person.anniversary_title :
                     create_anniversary_event(person.anniversary_title, person.anniversary_date, credentials)
+                    if prev_anniversary_date or prev_anniversary_title:
+                        # prevent old events from staying in Google Calendar
+                        delete_previous_anniversary(prev_anniversary_date, prev_anniversary_title, credentials)
                 # Update session credentials
                 session['credentials'] = credentials_to_dict(credentials)
             except Exception as e:

@@ -370,3 +370,9 @@ textarea, input[type="date"] {
 label {
   font-weight: bold;
 }
+.notification {
+  background-color: rgb(216, 216, 216);
+  padding: 20px;
+  border-radius: 10px;
+  align-self: center;
+}
