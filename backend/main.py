@@ -148,12 +148,12 @@ def add_member(group_id):
         
     return redirect(url_for('view_group', group_id=group_id))
     
-@app.route('/group/<int:group_id>/remove_member/<int:user_id>', methods=['POST'])
-def remove_member(group_id, user_id):
+@app.route('/group/<int:group_id>/remove_member/<int:person_id>', methods=['POST'])
+def remove_member(group_id, person_id):
     if 'username' not in session:
         return redirect(url_for('login'))
     group = Group.query.get(group_id)
-    person = Person.query.get(user_id)
+    person = Person.query.get(person_id)
     group.people.remove(person)
     db.session.commit()
     return redirect(url_for('view_group', group_id=group_id))
