@@ -30,7 +30,6 @@
         </div>
     </div>
     <button class="edit-info-btn" onclick="window.location.href='{{ url_for('edit_person', person_id=person.person_id) }}'">Edit Information</button>
-    <button class="gift-idea-btn" onclick="getGiftIdea()">Get a gift idea!</button>
 </div>
 {% if 'credentials' not in session %}
 <div class="notification">
