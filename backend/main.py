@@ -245,10 +245,12 @@ def edit_person(person_id):
     person = Person.query.get_or_404(person_id)
     
     if request.method == 'POST':
-        prev_birthday = person.birthday
-        prev_anniversary = person.anniversary_date
-        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
+        # Ensure all fields are updated correctly
+        person.name = request.form['name']
+        person.nickname = request.form['nickname'] if request.form['nickname'] else None
+        person.pronouns = request.form['pronouns'] if request.form['pronouns'] else None
         person.relationship = request.form['relationship'] if request.form['relationship'] else None
+        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
         person.anniversary_title = request.form['anniversary_title'] if request.form['anniversary_title'] else None
         person.anniversary_date = datetime.datetime.strptime(request.form['anniversary_date'], '%Y-%m-%d').date() if request.form['anniversary_date'] else None
         person.likes = request.form['likes'] if request.form['likes'] else None
@@ -258,31 +260,28 @@ def edit_person(person_id):
         person.how_we_met = request.form['how_we_met'] if request.form['how_we_met'] else None
         person.favorite_memory = request.form['favorite_memory'] if request.form['favorite_memory'] else None
         person.recent_updates = request.form['recent_updates'] if request.form['recent_updates'] else None
+        
         db.session.commit()
 
         # Check if user is logged in and has Google Calendar credentials
         if 'credentials' in session:
             try:
                 credentials = Credentials(**session['credentials'])
-                # prevent duplicate events
-                if prev_birthday != person.birthday:
+                # Create or update calendar events for birthday and anniversary
+                if person.birthday:
                     birthday_title = f"{person.name}'s Birthday"
                     create_anniversary_event(birthday_title, person.birthday, credentials)
-                    if prev_birthday is not None:
-                        # prevent old events from lingering
-                        delete_previous_anniversary(prev_birthday, birthday_title, credentials)
-                if prev_anniversary != person.anniversary_date:
+                if person.anniversary_date:
                     create_anniversary_event(person.anniversary_title, person.anniversary_date, credentials)
-                    if prev_anniversary is not None:
-                        # prevent old events from lingering
-                        delete_previous_anniversary(prev_anniversary, person.anniversary_title, credentials)
                 # Update session credentials
                 session['credentials'] = credentials_to_dict(credentials)
             except Exception as e:
                 flash(f'An error occurred while creating the event: {str(e)}')
         
         return redirect(url_for('view_person', person_id=person_id))
+    
     return render_template('edit_person.html', person=person)
+
 
 
 # use /users to see the tables, just to make sure the sql works with the flask

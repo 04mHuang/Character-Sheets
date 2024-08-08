@@ -1,17 +1,17 @@
-"""Update Person schema for missing fields and anniversary specifics
+"""Add more fields to Person model
 
-Revision ID: 715b24318d7d
-Revises: 4255bfd94db6
-Create Date: 2024-08-08 04:38:39.041291
+Revision ID: a05641cbc560
+Revises: 
+Create Date: 2024-08-08 08:42:10.461174
 
 """
 from alembic import op
 import sqlalchemy as sa
-
+from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.
-revision = '715b24318d7d'
-down_revision = '4255bfd94db6'
+revision = 'a05641cbc560'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -38,3 +38,4 @@ def downgrade():
         batch_op.drop_column('nickname')
 
     # ### end Alembic commands ###
+
