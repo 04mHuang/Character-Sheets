@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #fcf1f0;
+  background-color: #d4f4d2;
   margin: 0;
   padding: 0;
 }
@@ -96,7 +96,7 @@ nav {
 
 /* New styles for login container */
 .login-container {
-  background-color: #ffbcbc;
+  background-color: #a8cfa5;
   padding: 60px 40px; /* Increased padding */
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -155,7 +155,7 @@ nav {
 }
 
 .signup-container {
-  background-color: #ffbcbc;
+  background-color: #a8cfa5;
   padding: 60px 40px; /* Similar padding as login */
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -197,7 +197,7 @@ nav {
   width: 100%;
   max-width: 1200px;
   margin: 20px auto;
-  background-color: #ffcccc; /* Pastel pink slightly darker than the background */
+  background-color: #a8cfa5; /* Pastel pink slightly darker than the background */
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -349,7 +349,7 @@ button:hover {
   transition: background-color 0.3s, box-shadow 0.3s;
 }
 .card-name:hover {
-  background-color: #ffbcbc; 
+  background-color: #e0e0e0; 
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); 
 }
 
