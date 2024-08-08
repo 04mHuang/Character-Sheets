@@ -241,6 +241,7 @@ def edit_person(person_id):
     person = Person.query.get_or_404(person_id)
     
     if request.method == 'POST':
+        prev_birthday = person.birthday
         person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
         person.relationship = request.form['relationship'] if request.form['relationship'] else None
         person.anniversaries = datetime.datetime.strptime(request.form['anniversaries'], '%Y-%m-%d').date() if request.form['anniversaries'] else None
@@ -257,37 +258,19 @@ def edit_person(person_id):
         if 'credentials' in session:
             try:
                 credentials = Credentials(**session['credentials'])
-                event_link = create_birthday_event(credentials, {"name": person.name, "birthday": person.birthday})
-                flash(f'Event created: {event_link}')
+                # prevent duplicate events
+                if prev_birthday != person.birthday:
+                    birthday_title = f"{person.name}'s Birthday"
+                    create_anniversary_event(birthday_title, person.birthday, credentials)
+                    if prev_birthday is not None:
+                        # prevent old events from lingering
+                        delete_previous_anniversary(prev_birthday, birthday_title, credentials)
                 # Update session credentials
                 session['credentials'] = credentials_to_dict(credentials)
             except Exception as e:
                 flash(f'An error occurred while creating the event: {str(e)}')
         
         return redirect(url_for('view_person', person_id=person_id))
-    
-    return render_template('edit_person.html', person=person)
-    if request.method == 'POST':
-        prev_birthday = person.birthday
-        person.birthday = datetime.datetime.strptime(request.form['birthday'], '%Y-%m-%d').date() if request.form['birthday'] else None
-        person.allergies = request.form['allergies'] if request.form['allergies'] else None
-        person.interests = request.form['interests'] if request.form['interests'] else None
-        db.session.commit()
-        
-        if 'credentials' in session:
-            credentials = Credentials(**session['credentials'])
-            # prevent duplicate events
-            if prev_birthday != person.birthday:
-                birthday_title = f"{person.name}'s Birthday"
-                create_anniversary_event(birthday_title, person.birthday, credentials)
-                if prev_birthday is not None:
-                    # prevent old events from lingering
-                    delete_previous_anniversary(prev_birthday, birthday_title, credentials)
-            # Update session credentials
-            session['credentials'] = credentials_to_dict(credentials)
-        
-        return redirect(url_for('view_person', person_id=person_id))
-    
     return render_template('edit_person.html', person=person)
 
 
